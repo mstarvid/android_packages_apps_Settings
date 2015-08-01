@@ -83,7 +83,6 @@ public class MasterClearConfirm extends DialogFragment {
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             setShowsDialog(true);
-            setCancelable(false);
         }
 
         @Override
@@ -106,30 +105,20 @@ public class MasterClearConfirm extends DialogFragment {
         public void onResume() {
             super.onResume();
             new AsyncTask<Void, Void, Void>() {
-
-                Context mContext;
-                boolean mWipeMedia;
-                boolean mWipeSdCard;
-
-                @Override
-                protected void onPreExecute() {
-                    mContext = getActivity().getApplicationContext();
-                    mWipeMedia = getArguments().getBoolean(MasterClear.EXTRA_WIPE_MEDIA);
-                    mWipeSdCard = getArguments().getBoolean(MasterClear.EXTRA_WIPE_SDCARD);
-                }
-
                 @Override
                 protected Void doInBackground(Void... params) {
                     final PersistentDataBlockManager pdbManager = (PersistentDataBlockManager)
-                            mContext.getSystemService(Context.PERSISTENT_DATA_BLOCK_SERVICE);
+                            getActivity().getSystemService(Context.PERSISTENT_DATA_BLOCK_SERVICE);
                     if (pdbManager != null) pdbManager.wipe();
                     return null;
                 }
 
                 @Override
                 protected void onPostExecute(Void aVoid) {
-                    FrpDialog.this.dismissAllowingStateLoss();
-                    doMasterClear(mContext, mWipeMedia, mWipeSdCard);
+                    doMasterClear(getActivity(),
+                            getArguments().getBoolean(MasterClear.EXTRA_WIPE_MEDIA),
+                            getArguments().getBoolean(MasterClear.EXTRA_WIPE_SDCARD));
+                    FrpDialog.this.dismiss();
                 }
             }.execute();
         }
